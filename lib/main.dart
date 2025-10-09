@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:todoapp/sharedstate.dart';
+import 'package:todoapp/todo.dart';
 
 void main() {
-  runApp(MyApp());
+  List<String> tasks = [];
+  for (var i = 0; i < 1000; i++) {
+    tasks.add("a");
+  }
+  runApp(
+    SharedState(tasks: tasks, color: Colors.red, child: MyApp()),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -16,47 +24,20 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> tasks = SharedState.of(context).tasks;
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black12,
-          title: const Text('Home lol'),
+          title: const Text('Homeee lol'),
         ),
-        body: Center(
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.all(100),
-                padding: const EdgeInsets.all(20),
-                color: Colors.amber,
-                child: const Text(
-                  "body",
-                  style: TextStyle(
-                    letterSpacing: 10,
-                    backgroundColor: Colors.blue,
-                  ),
-                ),
-              ),
-              Text("blal"),
-              Text("$count"),
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () {
-                  setState(() {
-                    count++;
-                  });
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.cabin),
-                onPressed: () {
-                  setState(() {
-                    count--;
-                  });
-                },
-              ),
-            ],
-          ),
+        body: ListView.builder(
+          key: const Key('long_list'),
+          itemCount: tasks.length,
+          itemBuilder: (context, index) {
+            return Todo(task: tasks[index]);
+          },
         ),
       ),
       debugShowCheckedModeBanner: false,
