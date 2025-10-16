@@ -18,10 +18,10 @@ class _TodoState extends State<Todo> {
     return Row(
       children: [
         Checkbox(
-          value: isChecked,
+          value: widget.task.isCompleted,
           onChanged: (bool? value) {
             setState(() {
-              isChecked = value ?? false;
+              widget.task.isCompleted = value ?? false;
             });
           },
         ),
