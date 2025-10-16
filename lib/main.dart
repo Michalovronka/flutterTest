@@ -6,10 +6,11 @@ import 'package:todoapp/todo.dart';
 
 Future<void> main() async {
   List<Task> tasks = [];
-
-  runApp(
-    SharedState(tasks: tasks, color: Colors.red, child: MyApp()),
-  );
+  final prefs = await SharedPreferences.getInstance();
+  for (var i = 0; i < (prefs.getInt('numberOfTasks') ?? 0); i++) {
+    tasks.add(Task(name: i.toString(), isCompleted: false));
+  }
+  runApp(SharedState(tasks: tasks, color: Colors.red, child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -25,27 +26,24 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     List<Task> tasks = SharedState.of(context).tasks;
 
-    Future<void> loadTasks() async {
+    Future<void> addNumberOfTasks() async {
       List<Task> tasks = [];
       final prefs = await SharedPreferences.getInstance();
-      for (var i = 0; i < (prefs.getInt('numberOfTasks') ?? 0); i++) {
-        tasks.add(Task(name: i.toString(), isCompleted: false));
-        print(tasks[i]);
-      }
-
-      SharedState.of(context).tasks.addAll(tasks);
-    }
-
-    Future<void> addNumberOfTasks() async {
-      final prefs = await SharedPreferences.getInstance();
-      print("adduju");
-      print(numberOfTasks);
       setState(() {
         prefs.setInt('numberOfTasks', numberOfTasks);
       });
-      loadTasks();
+      SharedState.of(context).tasks.removeRange(0,SharedState.of(context).tasks.length);
+      for (
+        var i = 0;
+        i < (prefs.getInt('numberOfTasks') ?? 0);
+        i++
+      ) {
+        tasks.add(Task(name: i.toString(), isCompleted: false));
+      }
+      SharedState.of(context).tasks.addAll(tasks);
     }
 
+    int? parsed;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -58,19 +56,18 @@ class _MyAppState extends State<MyApp> {
               width: 200,
               child: TextField(
                 onChanged: (value) => {
-                  setState(() {
-                    numberOfTasks = int.parse(value);
-                  }),
-                  print("Numbetr of taks: "),
-                  print(numberOfTasks),
+                  parsed = int.tryParse(value),
+                  if (parsed != null)
+                    {
+                      setState(() {
+                        numberOfTasks = parsed!;
+                      }),
+                    },
                 },
                 maxLength: 20,
               ),
             ),
-            TextButton(
-              onPressed: addNumberOfTasks,
-              child: (Text("Save")),
-            ),
+            TextButton(onPressed: addNumberOfTasks, child: (Text("Save"))),
             Expanded(
               child: ListView.builder(
                 key: const Key('long_list'),
