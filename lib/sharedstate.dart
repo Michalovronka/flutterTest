@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todoapp/task.dart';
 
 class SharedState extends InheritedWidget {
   const SharedState({
@@ -9,7 +10,7 @@ class SharedState extends InheritedWidget {
   });
 
   final Color color;
-  final List<String> tasks;
+  final List<Task> tasks;
 
   static SharedState? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<SharedState>();

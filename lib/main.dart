@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:todoapp/sharedstate.dart';
+import 'package:todoapp/task.dart';
 import 'package:todoapp/todo.dart';
 
 void main() {
-  List<String> tasks = [];
+  List<Task> tasks = [];
   for (var i = 0; i < 1000; i++) {
-    tasks.add("a");
+    tasks.add(Task(name: "a", isCompleted: false));
   }
   runApp(
     SharedState(tasks: tasks, color: Colors.red, child: MyApp()),
@@ -24,7 +25,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> tasks = SharedState.of(context).tasks;
+    List<Task> tasks = SharedState.of(context).tasks;
 
     return MaterialApp(
       home: Scaffold(

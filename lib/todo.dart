@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:todoapp/task.dart';
 
 // stateful
-class Todo extends StatelessWidget {
+class Todo extends StatefulWidget {
   const Todo({super.key, required this.task});
 
-  final String task;
-  final bool isSwitchedOn = false;
+  final Task task;
 
   @override
-  Widget build(BuildContext context) {
-    bool? isChecked = false;
+  State<Todo> createState() => _TodoState();
+}
 
+class _TodoState extends State<Todo> {
+  bool isChecked = false;
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
-        Checkbox(value: isChecked, onChanged:(bool value) {
-                    setState(() {
-                      firstCheck = !value;
-                      secondCheck = value;
-                    });),
-        Text(task),
+        Checkbox(
+          value: isChecked,
+          onChanged: (bool? value) {
+            setState(() {
+              isChecked = value ?? false;
+            });
+          },
+        ),
+        Text(widget.task.name),
       ],
     );
   }
