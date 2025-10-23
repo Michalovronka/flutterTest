@@ -17,22 +17,17 @@ Future<void> main() async {
     if (response.statusCode == 200) {
       Map json = jsonDecode(response.body);
 
-      /*for (var i = 1; i < json.length; i++) {
+      for (var i = 1; i < json.length+1; i++) {
         var value = json['$i'];
-        print(value['title']);
+        print(value);
 
-        tasks.add(Task(name: "e", isCompleted: false));
-      }*/
-
-      json.forEach((key, value) {
-        print(value['title']);
         tasks.add(
           Task(
             name: value['title'],
             isCompleted: value['isCompleted'],
           ),
         );
-      });
+      }
     } else {
       print('Error: ${response.statusCode}');
     }
