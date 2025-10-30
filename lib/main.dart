@@ -12,12 +12,12 @@ Future<void> main() async {
   List<Task> tasks = [];
   try {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/todos'),
+      Uri.parse('http://10.0.2.2:8000/todos'),
     );
     if (response.statusCode == 200) {
       Map json = jsonDecode(response.body);
 
-      for (var i = 1; i < json.length+1; i++) {
+      for (var i = 1; i < json.length + 1; i++) {
         var value = json['$i'];
         print(value);
 
@@ -52,24 +52,46 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late TextEditingController _controller;
   int numberOfTasks = 0;
+
+  bool isEmpty = true;
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(); // ✅ initialize here
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose(); // ✅ clean up when widget is removed
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Task> tasks = SharedState.of(context).tasks;
 
-    Future<void> addNumberOfTasks() async {
-      List<Task> tasks = [];
-      final prefs = await SharedPreferences.getInstance();
+    void handlePost() async {
+      var a = await http.post(
+        Uri.parse(
+          'http://10.0.2.2:8000/todos?title=${_controller.text}',
+        ),
+      );
+      Map<String, dynamic> b = jsonDecode(a.body);
+      List<Task> result = b.keys.map<Task>((key) {
+        return Task(
+          name: b[key]['title'],
+          isCompleted: b[key]['isCompleted'],
+        );
+      }).toList();
+
+      _controller.text = "";
       setState(() {
-        prefs.setInt('numberOfTasks', numberOfTasks);
+        SharedState.of(context).tasks
+          ..clear()
+          ..addAll(result);
       });
-      SharedState.of(
-        context,
-      ).tasks.removeRange(0, SharedState.of(context).tasks.length);
-      for (var i = 0; i < (prefs.getInt('numberOfTasks') ?? 0); i++) {
-        tasks.add(Task(name: i.toString(), isCompleted: false));
-      }
-      SharedState.of(context).tasks.addAll(tasks);
     }
 
     int? parsed;
@@ -81,24 +103,30 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
-            SizedBox(
-              width: 200,
-              child: TextField(
-                onChanged: (value) => {
-                  parsed = int.tryParse(value),
-                  if (parsed != null)
-                    {
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter a search term',
+                    ),
+                    onChanged: (value) => {
                       setState(() {
-                        numberOfTasks = parsed!;
+                        isEmpty = value.isEmpty;
                       }),
                     },
-                },
-                maxLength: 20,
-              ),
-            ),
-            TextButton(
-              onPressed: addNumberOfTasks,
-              child: (Text("Save")),
+                  ),
+                ),
+                IconButton(
+                  onPressed: handlePost,
+                  icon: Icon(
+                    Icons.send,
+                    color: isEmpty ? Colors.grey : Colors.black54,
+                  ),
+                ),
+              ],
             ),
             Expanded(
               child: ListView.builder(
